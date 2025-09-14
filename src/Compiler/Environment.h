@@ -8,8 +8,6 @@ namespace SIML {
     class Environment {
     public:    
         Environment() noexcept = default;
-
-        Node compile(Lexer& lexer) noexcept;
     }; 
 }
 

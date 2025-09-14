@@ -3,6 +3,7 @@
 #include <memory>
 #include <utility>
 #include <optional>
+#include <variant>
 
 
 std::unique_ptr<SIML::NodeObject> parse_next_object(SIML::Lexer& lexer) noexcept;
@@ -85,6 +86,50 @@ std::optional<std::unique_ptr<SIML::Node>> parse_next_node(SIML::Lexer& lexer) n
     }
 }
 
+void parse_object_element(SIML::Lexer& lexer, SIML::NodeObject& obj, SIML::TokenType token) noexcept {
+    if (token == SIML::TokenType::DOT) { // Parse property
+        // EDGE CASE; .<ident> vs .<number>
+        // If it is .<number> return back and parse as value
+        // (THIS IS UGLY)
+        auto cursor = lexer.m_source.m_pointer;
+        
+        lexer.consume_next();
+
+        if (lexer.peek() == SIML::TokenType::NUMBER) {
+            lexer.m_source.m_pointer = cursor;
+
+            auto val = parse_next_node(lexer);
+            if (!val) { /*You can't get there*/ } 
+            obj.positionalProperties.push_back(std::move(*val));
+            return;
+        }
+
+        // EDGE CASE END
+
+        if (lexer.peek() != SIML::TokenType::IDENT) {
+            // TODO: error: unexcpected token
+        }
+
+        auto ident = lexer.get_next_ident();
+
+        // Optional ":"
+        if (lexer.peek() == SIML::TokenType::DOUBLE_DOT) {lexer.consume_next();}
+
+        auto value = parse_next_node(lexer);
+        if (!value) {
+            // TODO: error: value excpected
+        }
+
+        obj.namedProperties[ident] = std::move(*value);
+        return;
+    }  
+
+    // Parse value
+    auto val = parse_next_node(lexer);
+    if (!val) { __builtin_unreachable(); /*You can't get there*/ } 
+    obj.positionalProperties.push_back(std::move(*val));
+}
+
 std::unique_ptr<SIML::NodeObject> parse_next_object(SIML::Lexer& lexer) noexcept {
     
     // TODO: assert in debug mode that it is, in fact TokenType::BLOCK_OPEN
@@ -97,54 +142,19 @@ std::unique_ptr<SIML::NodeObject> parse_next_object(SIML::Lexer& lexer) noexcept
             lexer.consume_next();
             return std::move(obj);
         }
-
-        if (*token == SIML::TokenType::DOT) { // Parse property
-            
-            // EDGE CASE; .<ident> vs .<number>
-            // If it is .<number> return back and parse as value
-            // (THIS IS UGLY)
-            auto cursor = lexer.m_source.m_pointer;
-            
-            lexer.consume_next();
-
-            if (lexer.peek() == SIML::TokenType::NUMBER) {
-                lexer.m_source.m_pointer = cursor;
-
-                auto val = parse_next_node(lexer);
-                if (!val) { break; /*You can't get there*/ } 
-                obj->positionalProperties.push_back(std::move(*val));
-                continue;
-            }
-
-            // EDGE CASE END
-
-            if (lexer.peek() != SIML::TokenType::IDENT) {
-                // TODO: error: unexcpected token
-            }
-
-            auto ident = lexer.get_next_ident();
-
-            // Optional ":"
-            if (lexer.peek() == SIML::TokenType::DOUBLE_DOT) {lexer.consume_next();}
-
-            auto value = parse_next_node(lexer);
-            if (!value) {
-                // TODO: error: value excpected
-            }
-
-            obj->namedProperties[ident] = std::move(*value);
-            continue;
-        }  
-
-        // Parse value
-        auto val = parse_next_node(lexer);
-        if (!val) { break; /*You can't get there*/ } 
-        obj->positionalProperties.push_back(std::move(*val));
+        
+        parse_object_element(lexer, *obj, *token);
     }
     // TODO throw error: "}" excpected
     __builtin_unreachable(); // GCC only (remove (or change to unreachable from C++23))
 }
 
-SIML::Node SIML::Environment::compile(SIML::Lexer& lexer) noexcept {
-    auto base_node = std::make_unique<SIML::NodeObject>(SIML::NodeObject {});   
+std::unique_ptr<SIML::NodeObject> parse(SIML::Lexer& lexer) noexcept {
+    auto base_node = std::make_unique<SIML::NodeObject>(SIML::NodeObject {});
+
+    while (auto token = lexer.peek()) {
+        parse_object_element(lexer, *base_node, *token);
+    }
+
+    return base_node;
 }

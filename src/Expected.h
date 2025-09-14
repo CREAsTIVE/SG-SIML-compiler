@@ -108,7 +108,7 @@ struct Expected
     }
 
     Expected& operator=(const Expected&) noexcept = default;
-    Expected& operator=(const Expected&&) noexcept = default;
+    Expected& operator=(Expected&&) noexcept = default;
     template<typename T0>
     requires(std::is_convertible_v<T0, T>)
     Expected& operator=(T0&& v) noexcept

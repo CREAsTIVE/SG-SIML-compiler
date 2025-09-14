@@ -1,7 +1,7 @@
 .globalProperty: "globalPropVal";
 .number: 3;
 
-sungear {
+sungear { ;
     box center {
         .style {
             .color "red";

@@ -25,6 +25,16 @@ namespace SIML {
         NodeType nodeType;
         virtual ~Node() = default;
         
+        std::string nodeTypeToPreview(NodeType nodeType) {
+            switch (nodeType) {
+                case SIML::NodeType::STRING: return "String";
+                case SIML::NodeType::COMPONENT: return "Component";
+                case SIML::NodeType::IDENT: return "Identificator";
+                case SIML::NodeType::NUMBER: return "Number";
+                case SIML::NodeType::OBJECT: return "Object";
+            }
+        }
+        
         // Virtual write method to output the tree structure
         virtual void write(std::ostream& stream, int identLevel = 0) const = 0;
     };

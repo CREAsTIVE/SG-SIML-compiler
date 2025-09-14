@@ -6,6 +6,7 @@
 #include <string_view>
 #include <optional>
 #include <tuple>
+#include <utility>
 #include "../Expected.h"
 
 namespace SIML {
@@ -29,6 +30,21 @@ namespace SIML {
 		Source& m_source;
 
 		Lexer(Source& source) noexcept : m_source(source){};
+
+		static std::string tokenTypeToPreview(TokenType tt) {
+			switch (tt) {
+				case SIML::TokenType::STRING: return "String";
+				case SIML::TokenType::BLOCK_CLOSE: return "\"}\"";
+				case SIML::TokenType::BLOCK_OPEN: return "\"{\"";
+				case SIML::TokenType::DOT: return "\".\"";
+				case SIML::TokenType::DOUBLE_DOT: return "\":\"";
+				case SIML::TokenType::EXPR_END: return "\";\"";
+				case SIML::TokenType::IDENT: return "Ident";
+				case SIML::TokenType::NUMBER: return "Number";
+				case SIML::TokenType::TEXT_BLOCK_OPEN: return "\"[\"";
+				case SIML::TokenType::TEXT_BLOCK_CLOSE: return "\"]\"";
+			}
+		}
 		
 		std::optional<SIML::TokenType> peek() noexcept;
 
@@ -56,7 +72,7 @@ namespace SIML {
 				}
 			}
 
-			return std::make_tuple(line, column);
+			return std::make_pair(line, column);
 		}
     };
 }

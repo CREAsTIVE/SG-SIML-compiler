@@ -8,9 +8,9 @@
 namespace SIML {
 	class Source {
 	public:
-		std::string& m_data;
+		std::string const& m_data;
 		int m_pointer = 0;
-		Source(std::string& source) noexcept : m_data(source){};
+		Source(std::string const& source) noexcept : m_data(source){};
 
 		[[nodiscard]] std::optional<char> peek() noexcept;
 		// [[nodiscard]] std::optional<std::string_view> peek(int amount) noexcept;

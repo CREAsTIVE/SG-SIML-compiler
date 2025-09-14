@@ -14,7 +14,7 @@ void NodeString::write(std::ostream& stream, int indent_level) const {
     std::string indent = create_indent(indent_level);
     stream << indent << "STRING: \"";
     
-    stream << unescaped_value << "\"";
+    stream << m_unescaped_value << "\"";
     
     if (tag.has_value()) {
         stream << " (tag: " << tag.value() << ")";
@@ -27,12 +27,12 @@ void NodeNumber::write(std::ostream& stream, int indent_level) const {
     std::string indent = create_indent(indent_level);
     stream << indent << "NUMBER: ";
     
-    if (integer_part.has_value()) {
-        stream << integer_part.value();
+    if (raw_integer_part.has_value()) {
+        stream << raw_integer_part.value();
     }
     
-    if (float_part.has_value() && float_part.value().has_value()) {
-        stream << "." << float_part.value().value();
+    if (raw_float_part.has_value() && raw_float_part.value().has_value()) {
+        stream << "." << raw_float_part.value().value();
     }
     
     if (tag.has_value()) {

@@ -2,6 +2,7 @@
 #define SIML_NODE_H
 
 #include "../Lexer/Lexer.h"
+#include "Expected.h"
 #include <iostream>
 #include <string_view>
 #include <memory>
@@ -31,8 +32,10 @@ namespace SIML {
     struct NodeString : Node {
         NodeString() noexcept : Node(NodeType::STRING) {}
 
-        std::string_view unescaped_value;
+        std::string_view m_unescaped_value;
         std::optional<std::string_view> tag;
+
+        std::string escaped() noexcept;
         
         void write(std::ostream& stream, int indent_level = 0) const override;
     };
@@ -40,9 +43,15 @@ namespace SIML {
     struct NodeNumber : Node {
         NodeNumber() noexcept : Node(NodeType::NUMBER) {}
         
-        std::optional<std::string_view> integer_part;
-        std::optional<std::optional<std::string_view>> float_part;
+        std::optional<std::string_view> raw_integer_part;
+        std::optional<std::optional<std::string_view>> raw_float_part;
         std::optional<std::string_view> tag;
+
+        bool is_float() noexcept;
+        int integer_part() noexcept;
+        int float_part() noexcept;
+        float as_float() noexcept;
+        double as_double() noexcept;
         
         void write(std::ostream& stream, int indent_level = 0) const override;
     };

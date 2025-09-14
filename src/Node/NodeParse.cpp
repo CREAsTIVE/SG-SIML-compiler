@@ -36,7 +36,7 @@ Expected<std::unique_ptr<SIML::Node>, SIML::ParseError> parse_next_node(SIML::Le
         }
     } else if (*token == SIML::TokenType::STRING) { // "..."
         auto node = std::make_unique<SIML::NodeString>(SIML::NodeString {});
-        node->unescaped_value = expect(lexer.get_next_string());
+        node->m_unescaped_value = expect(lexer.get_next_string());
         
         auto token = lexer.peek();
         if (token && *token == SIML::TokenType::IDENT) {
@@ -55,18 +55,18 @@ Expected<std::unique_ptr<SIML::Node>, SIML::ParseError> parse_next_node(SIML::Le
         auto token = lexer.peek();
 
         if (token == SIML::TokenType::NUMBER) {
-            node->integer_part = lexer.get_next_number();
+            node->raw_integer_part = lexer.get_next_number();
         }
 
         token = lexer.peek();
         if (token && *token == SIML::TokenType::DOT) {
-            node->float_part = std::make_optional<std::optional<std::string_view>>(std::nullopt);
+            node->raw_float_part = std::make_optional<std::optional<std::string_view>>(std::nullopt);
             
             lexer.consume_next();
             token = lexer.peek();
 
             if (token == SIML::TokenType::NUMBER) {
-                node->float_part = lexer.get_next_number();
+                node->raw_float_part = lexer.get_next_number();
             }
         }
 

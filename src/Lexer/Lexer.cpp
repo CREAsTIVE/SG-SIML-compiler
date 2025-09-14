@@ -3,6 +3,8 @@
 #include <cctype>
 #include <cassert>
 #include <optional>
+#include <string_view>
+#include <sys/types.h>
 
 std::optional<SIML::TokenType> SIML::Lexer::peek() noexcept {
 	while (std::optional<char> peeked = m_source.peek()) {
@@ -41,19 +43,23 @@ void SIML::Lexer::consume_next() noexcept {
 	// TODO: Add assert for TokenType to be "simple" in DEBUG mode
 }
 
+std::string_view substr(std::string_view source, uint from, uint size) {
+	return std::string_view(source.data() + from, size);
+}
+
 std::string_view SIML::Lexer::get_next_ident() noexcept {
 	// TODO: Assert
 	int from = m_source.m_pointer;
 	m_source.next(); // skip first char
 	while (auto character = m_source.peek()) {
 		if (!isalpha(*character) && !isdigit(*character)) { 
-			return m_source.m_data.substr(from, m_source.m_pointer - from); 
+			return substr(m_source.m_data, from, m_source.m_pointer - from); 
 		}		
 		
 		m_source.next();
 	}
 
-	return m_source.m_data.substr(from, m_source.m_pointer - from);
+	return substr(m_source.m_data, from, m_source.m_pointer - from);
 }
 
 std::string_view SIML::Lexer::get_next_string() noexcept {
@@ -68,7 +74,7 @@ std::string_view SIML::Lexer::get_next_string() noexcept {
 		}
 		
 		if (*character == '"') {
-			return m_source.m_data.substr(from, m_source.m_pointer - 1 - from);
+			return substr(m_source.m_data, from, m_source.m_pointer - 1 - from);
 		}
 	}
 
@@ -79,9 +85,9 @@ std::string_view SIML::Lexer::get_next_number() noexcept {
 	int from = m_source.m_pointer;
 	m_source.next(); // skip first digit
 	while (auto character = m_source.peek()) {
-		if (!isdigit(*character)) { return m_source.m_data.substr(from, m_source.m_pointer - from); }
+		if (!isdigit(*character)) { return substr(m_source.m_data, from, m_source.m_pointer - from); }
 		m_source.next();
 	}
 
-	return m_source.m_data.substr(from, m_source.m_pointer - from);
+	return substr(m_source.m_data, from, m_source.m_pointer - from);
 }

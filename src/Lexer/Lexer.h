@@ -5,8 +5,11 @@
 #include <algorithm>
 #include <string_view>
 #include <optional>
+#include "../Expected.h"
 
 namespace SIML {
+	struct ParseError; 
+
 	enum TokenType {
 		IDENT, // [a-zA-Z]
 		STRING, // "
@@ -26,14 +29,21 @@ namespace SIML {
 
 		Lexer(Source& source) noexcept : m_source(source){};
 		
-		std::optional<TokenType> peek() noexcept;
+		std::optional<SIML::TokenType> peek() noexcept;
 
 		void consume_next() noexcept;
 
 		std::string_view get_next_ident() noexcept;
-		std::string_view get_next_string() noexcept;
+		Expected<std::string_view, SIML::ParseError> get_next_string() noexcept;
 		std::string_view get_next_number() noexcept;
 	};
+
+	struct ParseError {
+        ParseError(std::string message, Lexer& lexer) noexcept : m_message(message), m_position(lexer.m_source.m_pointer) {}; 
+
+        std::string m_message;
+        unsigned int m_position;
+    };
 }
 
 #endif

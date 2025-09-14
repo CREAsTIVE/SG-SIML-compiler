@@ -5,12 +5,11 @@
 #include <optional>
 #include <variant>
 
+Expected<std::unique_ptr<SIML::NodeObject>, SIML::ParseError> parse_next_object(SIML::Lexer& lexer) noexcept;
 
-std::unique_ptr<SIML::NodeObject> parse_next_object(SIML::Lexer& lexer) noexcept;
-
-std::optional<std::unique_ptr<SIML::Node>> parse_next_node(SIML::Lexer& lexer) noexcept {
+Expected<std::unique_ptr<SIML::Node>, SIML::ParseError> parse_next_node(SIML::Lexer& lexer) noexcept {
     auto token = lexer.peek();
-    if (!token) {return {};}
+    if (!token) {return Unexpected(SIML::ParseError("Expected value", lexer));}
     
     if (*token == SIML::TokenType::BLOCK_CLOSE | 
         *token == SIML::TokenType::TEXT_BLOCK_CLOSE |
@@ -18,15 +17,15 @@ std::optional<std::unique_ptr<SIML::Node>> parse_next_node(SIML::Lexer& lexer) n
     ) {
         // TODO: Error: unexcpected token
     } else if (*token == SIML::TokenType::BLOCK_OPEN) {
-        return parse_next_object(lexer);
+        return expect(parse_next_object(lexer));
     } else if (*token == SIML::TokenType::IDENT) { // ident <value> OR ident;
         auto ident = lexer.get_next_ident();
         auto next = lexer.peek();
         if (next && *next != SIML::TokenType::EXPR_END) {
             auto component = std::make_unique<SIML::NodeComponent>(SIML::NodeComponent {});
             component->name = ident;
-            auto value = parse_next_node(lexer);
-            component->value = std::move(*value); // Value exists, since we peeked
+            auto value = expect(parse_next_node(lexer));
+            component->value = std::move(value);
             return std::move(component);
         } else { // next exists AND it ;
             lexer.consume_next(); // consume ;
@@ -37,7 +36,7 @@ std::optional<std::unique_ptr<SIML::Node>> parse_next_node(SIML::Lexer& lexer) n
         }
     } else if (*token == SIML::TokenType::STRING) { // "..."
         auto node = std::make_unique<SIML::NodeString>(SIML::NodeString {});
-        node->unescaped_value = lexer.get_next_string();
+        node->unescaped_value = expect(lexer.get_next_string());
         
         auto token = lexer.peek();
         if (token && *token == SIML::TokenType::IDENT) {
@@ -47,7 +46,7 @@ std::optional<std::unique_ptr<SIML::Node>> parse_next_node(SIML::Lexer& lexer) n
         // REQUIRED ;
         token = lexer.peek(); lexer.consume_next();
         if (token != SIML::TokenType::EXPR_END) {
-            // TODO: error: ";" excpected
+            return Unexpected(SIML::ParseError("';' expected", lexer));
         }
         
         return std::move(node);
@@ -79,14 +78,14 @@ std::optional<std::unique_ptr<SIML::Node>> parse_next_node(SIML::Lexer& lexer) n
         // REQUIRED ;
         token = lexer.peek(); lexer.consume_next();
         if (token != SIML::TokenType::EXPR_END) {
-            // TODO: error: ";" excpected
+            return Unexpected(SIML::ParseError("';' expected", lexer));
         }
 
         return std::move(node);
     }
 }
 
-void parse_object_element(SIML::Lexer& lexer, SIML::NodeObject& obj, SIML::TokenType token) noexcept {
+Expected<Unit, SIML::ParseError> parse_object_element(SIML::Lexer& lexer, SIML::NodeObject& obj, SIML::TokenType token) noexcept {
     if (token == SIML::TokenType::DOT) { // Parse property
         // EDGE CASE; .<ident> vs .<number>
         // If it is .<number> return back and parse as value
@@ -98,10 +97,11 @@ void parse_object_element(SIML::Lexer& lexer, SIML::NodeObject& obj, SIML::Token
         if (lexer.peek() == SIML::TokenType::NUMBER) {
             lexer.m_source.m_pointer = cursor;
 
-            auto val = parse_next_node(lexer);
-            if (!val) { /*You can't get there*/ } 
-            obj.positionalProperties.push_back(std::move(*val));
-            return;
+            
+
+            auto val = expect(parse_next_node(lexer));
+            obj.positionalProperties.push_back(std::move(val));
+            return Unit {};
         }
 
         // EDGE CASE END
@@ -115,22 +115,18 @@ void parse_object_element(SIML::Lexer& lexer, SIML::NodeObject& obj, SIML::Token
         // Optional ":"
         if (lexer.peek() == SIML::TokenType::DOUBLE_DOT) {lexer.consume_next();}
 
-        auto value = parse_next_node(lexer);
-        if (!value) {
-            // TODO: error: value excpected
-        }
+        auto value = expect(parse_next_node(lexer));
 
-        obj.namedProperties[ident] = std::move(*value);
-        return;
+        obj.namedProperties[ident] = std::move(value);
+        return Unit{};
     }  
 
     // Parse value
-    auto val = parse_next_node(lexer);
-    if (!val) { __builtin_unreachable(); /*You can't get there*/ } 
-    obj.positionalProperties.push_back(std::move(*val));
+    auto val = expect(parse_next_node(lexer));
+    obj.positionalProperties.push_back(std::move(val));
 }
 
-std::unique_ptr<SIML::NodeObject> parse_next_object(SIML::Lexer& lexer) noexcept {
+Expected<std::unique_ptr<SIML::NodeObject>, SIML::ParseError> parse_next_object(SIML::Lexer& lexer) noexcept {
     
     // TODO: assert in debug mode that it is, in fact TokenType::BLOCK_OPEN
     
@@ -145,15 +141,14 @@ std::unique_ptr<SIML::NodeObject> parse_next_object(SIML::Lexer& lexer) noexcept
         
         parse_object_element(lexer, *obj, *token);
     }
-    // TODO throw error: "}" excpected
-    __builtin_unreachable(); // GCC only (remove (or change to unreachable from C++23))
+    return Unexpected(SIML::ParseError("'}' expected, EOF found", lexer));
 }
 
-std::unique_ptr<SIML::NodeObject> SIML::NodeObject::parse_as_global_node(SIML::Lexer& lexer) noexcept {
+Expected<std::unique_ptr<SIML::NodeObject>, SIML::ParseError> SIML::NodeObject::parse_as_global_node(SIML::Lexer& lexer) noexcept {
     auto base_node = std::make_unique<SIML::NodeObject>(SIML::NodeObject {});
 
     while (auto token = lexer.peek()) {
-        parse_object_element(lexer, *base_node, *token);
+        expect(parse_object_element(lexer, *base_node, *token));
     }
 
     return base_node;

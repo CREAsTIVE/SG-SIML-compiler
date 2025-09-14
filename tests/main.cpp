@@ -34,6 +34,10 @@ int main() {
 
 
     auto node = SIML::NodeObject::parse_as_global_node(lexer);
+    if (node.hasError()) {
+        std::cout << "Error: " << node.error().m_message;
+        return 0;
+    }
     node->write(std::cout, 2);
 
     // cout_all_tokens(lexer);
@@ -58,7 +62,7 @@ void cout_all_tokens(SIML::Lexer& lexer) {
                 std::cout << test << std::endl;
                 break;
             case SIML::TokenType::STRING:
-                std::cout << lexer.get_next_string() << std::endl;
+                std::cout << lexer.get_next_string().value() << std::endl;
                 break;
             case SIML::TokenType::NUMBER:
                 std::cout << lexer.get_next_number() << std::endl;

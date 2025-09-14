@@ -5,7 +5,6 @@
 namespace SIML {
 
 namespace {
-    // Helper function to create indentation
     std::string create_indent(int level) {
         return std::string(level * 2, ' ');
     }
@@ -15,7 +14,6 @@ void NodeString::write(std::ostream& stream, int indent_level) const {
     std::string indent = create_indent(indent_level);
     stream << indent << "STRING: \"";
     
-    // Output the unescaped value (you might want to escape special characters here)
     stream << unescaped_value << "\"";
     
     if (tag.has_value()) {

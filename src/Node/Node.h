@@ -55,7 +55,7 @@ namespace SIML {
         
         void write(std::ostream& stream, int indent_level = 0) const override;
         
-        static std::unique_ptr<NodeObject> parse_as_global_node(Lexer& lexer) noexcept;
+        static Expected<std::unique_ptr<NodeObject>, ParseError> parse_as_global_node(Lexer& lexer) noexcept;
     };
 
     struct NodeComponent : Node {

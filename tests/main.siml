@@ -1,6 +1,13 @@
-.globalProperty:"globalPropVal";
+.globalProperty: "globalPropVal";
 .number: 3;
 
-{
-    
+sungear {
+    box center {
+        .style {
+            .color "red";
+        }
+        
+        "Hello";
+        h "Header";
+    }
 }

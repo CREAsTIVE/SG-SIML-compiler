@@ -5,6 +5,7 @@
 #include <optional>
 #include <string_view>
 #include <sys/types.h>
+#include "../Expected.h"
 
 std::optional<SIML::TokenType> SIML::Lexer::peek() noexcept {
 	while (std::optional<char> peeked = m_source.peek()) {
@@ -64,7 +65,7 @@ std::string_view SIML::Lexer::get_next_ident() noexcept {
 	return substr(m_source.m_data, from, m_source.m_pointer - from);
 }
 
-std::string_view SIML::Lexer::get_next_string() noexcept {
+Expected<std::string_view, SIML::ParseError> SIML::Lexer::get_next_string() noexcept {
 	// TODO: Assert
 	m_source.next(); // skip first "
 	int from = m_source.m_pointer;
@@ -80,7 +81,7 @@ std::string_view SIML::Lexer::get_next_string() noexcept {
 		}
 	}
 
-	// TODO: Error
+	return Unexpected(SIML::ParseError("'\"\' expected, EOF found", *this));
 }
 std::string_view SIML::Lexer::get_next_number() noexcept {
 	// TODO: Debug assert

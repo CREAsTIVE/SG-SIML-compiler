@@ -15,7 +15,10 @@ Expected<std::unique_ptr<SIML::Node>, SIML::ParseError> parse_next_node(SIML::Le
         *token == SIML::TokenType::TEXT_BLOCK_CLOSE |
         *token == SIML::TokenType::EXPR_END
     ) {
-        // TODO: Error: unexcpected token
+        // TODO: Show what token
+        return Unexpected(
+            SIML::ParseError("Unexpected token " + SIML::Lexer::tokenTypeToPreview(*token), lexer)
+        );
     } else if (*token == SIML::TokenType::BLOCK_OPEN) {
         auto temp = parse_next_object(lexer); reterr(temp);
         return std::move(*temp);
@@ -80,7 +83,7 @@ Expected<std::unique_ptr<SIML::Node>, SIML::ParseError> parse_next_node(SIML::Le
         // REQUIRED ;
         token = lexer.peek(); lexer.consume_next();
         if (token != SIML::TokenType::EXPR_END) {
-            return Unexpected(SIML::ParseError("';' expected", lexer));
+            return Unexpected(SIML::ParseError("\";\" expected", lexer));
         }
 
         return std::move(node);
@@ -142,7 +145,8 @@ Expected<std::unique_ptr<SIML::NodeObject>, SIML::ParseError> parse_next_object(
             return std::move(obj);
         }
         
-        parse_object_element(lexer, *obj, *token);
+        auto temp = parse_object_element(lexer, *obj, *token);
+        reterr(temp);
     }
     return Unexpected(SIML::ParseError("'}' expected, EOF found", lexer));
 }

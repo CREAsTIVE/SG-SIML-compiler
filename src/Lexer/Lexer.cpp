@@ -46,7 +46,7 @@ void SIML::Lexer::consume_next() noexcept {
 	// TODO: Add assert for TokenType to be "simple" in DEBUG mode
 }
 
-std::string_view substr(std::string_view source, std::uint32_t from, std::uint32_t size) {
+std::string_view substr(std::string_view source, unsigned int from, unsigned int size) {
 	return std::string_view(source.data() + from, size);
 }
 

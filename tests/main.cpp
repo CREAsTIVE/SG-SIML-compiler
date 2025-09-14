@@ -1,6 +1,6 @@
 #include "../src/Node/Node.h"
 #include "../src/Lexer/Lexer.h"
-#include "Lexer/Source.h"
+#include "../src/Lexer/Source.h"
 #include <iostream> // For std::cout, std::cerr
 #include <fstream>  // For std::ifstream
 #include <sstream>  // For std::stringstream

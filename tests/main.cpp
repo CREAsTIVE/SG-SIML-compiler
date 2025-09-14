@@ -33,10 +33,10 @@ int main() {
     auto lexer = SIML::Lexer(source);
 
 
-    //auto node = SIML::NodeObject::parse_as_global_node(lexer);
-    //node->write(std::cout, 2);
+    auto node = SIML::NodeObject::parse_as_global_node(lexer);
+    node->write(std::cout, 2);
 
-    cout_all_tokens(lexer);
+    // cout_all_tokens(lexer);
 
     return 0;
 }

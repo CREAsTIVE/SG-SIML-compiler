@@ -28,6 +28,8 @@ std::optional<SIML::TokenType> SIML::Lexer::peek() noexcept {
 				return TokenType::STRING;
 			case ':':
 				return TokenType::DOUBLE_DOT;
+			case '}':
+				return TokenType::BLOCK_CLOSE;
 		}
 
 		if (isdigit(*peeked)) { return TokenType::NUMBER; }

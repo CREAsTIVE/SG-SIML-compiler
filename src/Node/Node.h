@@ -2,7 +2,7 @@
 #define SIML_NODE_H
 
 #include "../Lexer/Lexer.h"
-#include "Expected.h"
+#include "../Expected.h"
 #include <iostream>
 #include <string_view>
 #include <memory>
@@ -20,51 +20,51 @@ namespace SIML {
     };
 
     struct Node {
-        Node(NodeType type) noexcept : node_type(type) {}
+        Node(NodeType type) noexcept : nodeType(type) {}
         
-        NodeType node_type;
+        NodeType nodeType;
         virtual ~Node() = default;
         
         // Virtual write method to output the tree structure
-        virtual void write(std::ostream& stream, int indent_level = 0) const = 0;
+        virtual void write(std::ostream& stream, int identLevel = 0) const = 0;
     };
 
     struct NodeString : Node {
         NodeString() noexcept : Node(NodeType::STRING) {}
 
-        std::string_view m_unescaped_value;
+        std::string_view m_unescapedValue;
         std::optional<std::string_view> tag;
 
         std::string escaped() noexcept;
         
-        void write(std::ostream& stream, int indent_level = 0) const override;
+        void write(std::ostream& stream, int identLevel = 0) const override;
     };
 
     struct NodeNumber : Node {
         NodeNumber() noexcept : Node(NodeType::NUMBER) {}
         
-        std::optional<std::string_view> raw_integer_part;
-        std::optional<std::optional<std::string_view>> raw_float_part;
-        std::optional<std::string_view> tag;
+        std::optional<std::string_view> m_rawIntegerPart;
+        std::optional<std::optional<std::string_view>> m_rawFloatPart;
+        std::optional<std::string_view> m_tag;
 
-        bool is_float() noexcept;
-        int integer_part() noexcept;
-        int float_part() noexcept;
-        float as_float() noexcept;
-        double as_double() noexcept;
+        bool isFloat() noexcept;
+        int integerPart() noexcept;
+        int floatPart() noexcept;
+        float asFloat() noexcept;
+        double asDouble() noexcept;
         
-        void write(std::ostream& stream, int indent_level = 0) const override;
+        void write(std::ostream& stream, int identLevel = 0) const override;
     };
 
     struct NodeObject : Node {
         NodeObject() noexcept : Node(NodeType::OBJECT) {}
 
-        std::unordered_map<std::string_view, std::unique_ptr<Node>> namedProperties;
-        std::vector<std::unique_ptr<Node>> positionalProperties;
+        std::unordered_map<std::string_view, std::unique_ptr<Node>> m_namedProperties;
+        std::vector<std::unique_ptr<Node>> m_positionalProperties;
         
-        void write(std::ostream& stream, int indent_level = 0) const override;
+        void write(std::ostream& stream, int identLevel = 0) const override;
         
-        static Expected<std::unique_ptr<NodeObject>, ParseError> parse_as_global_node(Lexer& lexer) noexcept;
+        static Expected<std::unique_ptr<NodeObject>, ParseError> parseAsGlobalNode(Lexer& lexer) noexcept;
     };
 
     struct NodeComponent : Node {
@@ -73,7 +73,7 @@ namespace SIML {
         std::string_view name;
         std::unique_ptr<Node> value;
         
-        void write(std::ostream& stream, int indent_level = 0) const override;
+        void write(std::ostream& stream, int identLevel = 0) const override;
     };
 
     struct NodeIdent : Node {
@@ -81,7 +81,7 @@ namespace SIML {
 
         std::string_view ident;
         
-        void write(std::ostream& stream, int indent_level = 0) const override;
+        void write(std::ostream& stream, int identLevel = 0) const override;
     };
 }
 

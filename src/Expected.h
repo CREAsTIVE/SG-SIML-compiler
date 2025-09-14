@@ -1,16 +1,22 @@
-#ifndef EXPECTED_H
-#define EXPECTED_H
+#ifndef SIML_EXPECTED_H
+#define SIML_EXPECTED_H
 
 #include <type_traits>
 #include <string>
 #include <iostream>
 #include <cassert>
 
-#define expect(v) ({ \
+// Only on gcc / clang
+#define _expect(v) ({ \
     auto _tmp = (v); \
     if (_tmp.hasError()) return Unexpected(_tmp.error()); \
     std::move(_tmp.value()); \
 })
+
+#define reterr(v) if (v.hasError()) {return Unexpected(v.error());} 
+#define expectset(target, val) \
+  auto temp = (val); reterr(temp); \
+  target = std::move(*temp); \
 
 template<typename T>
 struct Unexpected

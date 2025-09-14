@@ -34,9 +34,9 @@ namespace SIML {
 
 		void consume_next() noexcept;
 
-		std::string_view get_next_ident() noexcept;
-		Expected<std::string_view, SIML::ParseError> get_next_string() noexcept;
-		std::string_view get_next_number() noexcept;
+		std::string_view getNextIdent() noexcept;
+		Expected<std::string_view, SIML::ParseError> getNextString() noexcept;
+		std::string_view getNextNumber() noexcept;
 	};
 
 	struct ParseError {
@@ -45,7 +45,7 @@ namespace SIML {
         std::string m_message;
         Lexer& m_lexer;
 
-		std::tuple<unsigned int, unsigned int> to_ln_col() {
+		std::pair<unsigned int, unsigned int> to_ln_col() {
 			unsigned int line = 0;
 			unsigned int column = 0;
 

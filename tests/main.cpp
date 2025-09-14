@@ -1,5 +1,5 @@
 #include "../src/Node/Node.h"
-#include "Lexer/Lexer.h"
+#include "../src/Lexer/Lexer.h"
 #include "Lexer/Source.h"
 #include <iostream> // For std::cout, std::cerr
 #include <fstream>  // For std::ifstream
@@ -33,7 +33,7 @@ int main() {
     auto lexer = SIML::Lexer(source);
 
 
-    auto node = SIML::NodeObject::parse_as_global_node(lexer);
+    auto node = SIML::NodeObject::parseAsGlobalNode(lexer);
     if (node.hasError()) {
         std::cout << "Error: " << node.error().m_message;
         return 0;
@@ -58,14 +58,14 @@ void cout_all_tokens(SIML::Lexer& lexer) {
                 lexer.consume_next();
                 break;
             case SIML::TokenType::IDENT:
-                test = lexer.get_next_ident();
+                test = lexer.getNextIdent();
                 std::cout << test << std::endl;
                 break;
             case SIML::TokenType::STRING:
-                std::cout << lexer.get_next_string().value() << std::endl;
+                std::cout << lexer.getNextString().value() << std::endl;
                 break;
             case SIML::TokenType::NUMBER:
-                std::cout << lexer.get_next_number() << std::endl;
+                std::cout << lexer.getNextNumber() << std::endl;
                 break;
             case SIML::TokenType::BLOCK_OPEN:
                 std::cout << "{" << std::endl;

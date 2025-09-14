@@ -50,7 +50,7 @@ std::string_view substr(std::string_view source, uint from, uint size) {
 	return std::string_view(source.data() + from, size);
 }
 
-std::string_view SIML::Lexer::get_next_ident() noexcept {
+std::string_view SIML::Lexer::getNextIdent() noexcept {
 	// TODO: Assert
 	int from = m_source.m_pointer;
 	m_source.next(); // skip first char
@@ -65,7 +65,7 @@ std::string_view SIML::Lexer::get_next_ident() noexcept {
 	return substr(m_source.m_data, from, m_source.m_pointer - from);
 }
 
-Expected<std::string_view, SIML::ParseError> SIML::Lexer::get_next_string() noexcept {
+Expected<std::string_view, SIML::ParseError> SIML::Lexer::getNextString() noexcept {
 	// TODO: Assert
 	m_source.next(); // skip first "
 	int from = m_source.m_pointer;
@@ -83,7 +83,7 @@ Expected<std::string_view, SIML::ParseError> SIML::Lexer::get_next_string() noex
 
 	return Unexpected(SIML::ParseError("'\"\' expected, EOF found", *this));
 }
-std::string_view SIML::Lexer::get_next_number() noexcept {
+std::string_view SIML::Lexer::getNextNumber() noexcept {
 	// TODO: Debug assert
 	int from = m_source.m_pointer;
 	m_source.next(); // skip first digit

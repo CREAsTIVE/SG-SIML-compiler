@@ -22,9 +22,9 @@ namespace SIML {
 
 	class Lexer {
 	public:
-		Source m_source;
+		Source& m_source;
 
-		Lexer(Source source) noexcept : m_source(std::move(source)){};
+		Lexer(Source& source) noexcept : m_source(source){};
 		
 		std::optional<TokenType> peek() noexcept;
 

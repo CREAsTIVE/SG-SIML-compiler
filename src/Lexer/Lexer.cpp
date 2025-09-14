@@ -5,9 +5,8 @@
 #include <optional>
 
 std::optional<SIML::TokenType> SIML::Lexer::peek() noexcept {
-	while (std::optional<char> peeked = m_source.peek() 
-		&& std::isspace(*peeked)
-	) {
+	while (std::optional<char> peeked = m_source.peek()) {
+		if (!std::isspace(*peeked)) {break;}
 		m_source.next();
 	}
 	
@@ -47,14 +46,14 @@ std::string_view SIML::Lexer::get_next_ident() noexcept {
 	int from = m_source.m_pointer;
 	m_source.next(); // skip first char
 	while (auto character = m_source.peek()) {
-		m_source.next();
-
 		if (!isalpha(*character) && !isdigit(*character)) { 
-			return m_source.m_data.substr(from, m_source.m_pointer); 
+			return m_source.m_data.substr(from, m_source.m_pointer - from); 
 		}		
+		
+		m_source.next();
 	}
 
-	return m_source.m_data.substr(from, m_source.m_pointer);
+	return m_source.m_data.substr(from, m_source.m_pointer - from);
 }
 
 std::string_view SIML::Lexer::get_next_string() noexcept {
@@ -69,7 +68,7 @@ std::string_view SIML::Lexer::get_next_string() noexcept {
 		}
 		
 		if (*character == '"') {
-			return m_source.m_data.substr(from, m_source.m_pointer - 1);
+			return m_source.m_data.substr(from, m_source.m_pointer - 1 - from);
 		}
 	}
 
@@ -80,9 +79,9 @@ std::string_view SIML::Lexer::get_next_number() noexcept {
 	int from = m_source.m_pointer;
 	m_source.next(); // skip first digit
 	while (auto character = m_source.peek()) {
+		if (!isdigit(*character)) { return m_source.m_data.substr(from, m_source.m_pointer - from); }
 		m_source.next();
-		if (!isdigit(*character)) { return m_source.m_data.substr(from, m_source.m_pointer); }
 	}
 
-	return m_source.m_data.substr(from, m_source.m_pointer);
+	return m_source.m_data.substr(from, m_source.m_pointer - from);
 }

@@ -2,7 +2,7 @@
 #define SIML_NODE_H
 
 #include "../Lexer/Lexer.h"
-
+#include <iostream>
 #include <string_view>
 #include <memory>
 #include <optional>
@@ -23,6 +23,9 @@ namespace SIML {
         
         NodeType node_type;
         virtual ~Node() = default;
+        
+        // Virtual write method to output the tree structure
+        virtual void write(std::ostream& stream, int indent_level = 0) const = 0;
     };
 
     struct NodeString : Node {
@@ -30,6 +33,8 @@ namespace SIML {
 
         std::string_view unescaped_value;
         std::optional<std::string_view> tag;
+        
+        void write(std::ostream& stream, int indent_level = 0) const override;
     };
 
     struct NodeNumber : Node {
@@ -38,6 +43,8 @@ namespace SIML {
         std::optional<std::string_view> integer_part;
         std::optional<std::optional<std::string_view>> float_part;
         std::optional<std::string_view> tag;
+        
+        void write(std::ostream& stream, int indent_level = 0) const override;
     };
 
     struct NodeObject : Node {
@@ -45,7 +52,9 @@ namespace SIML {
 
         std::unordered_map<std::string_view, std::unique_ptr<Node>> namedProperties;
         std::vector<std::unique_ptr<Node>> positionalProperties;
-
+        
+        void write(std::ostream& stream, int indent_level = 0) const override;
+        
         static std::unique_ptr<NodeObject> parse_as_global_node(Lexer& lexer) noexcept;
     };
 
@@ -54,12 +63,16 @@ namespace SIML {
 
         std::string_view name;
         std::unique_ptr<Node> value;
+        
+        void write(std::ostream& stream, int indent_level = 0) const override;
     };
 
     struct NodeIdent : Node {
         NodeIdent() noexcept : Node(NodeType::IDENT) {}
 
         std::string_view ident;
+        
+        void write(std::ostream& stream, int indent_level = 0) const override;
     };
 }
 

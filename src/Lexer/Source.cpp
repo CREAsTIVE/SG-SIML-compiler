@@ -1,9 +1,5 @@
 #include "./Source.h"
 
-SIML::Source::Source(std::string data) noexcept {
-	this->m_data = data;
-}
-
 void SIML::Source::next() noexcept {
 	m_pointer++;
 }

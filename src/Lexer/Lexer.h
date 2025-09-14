@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <string_view>
 #include <optional>
+#include <tuple>
 #include "../Expected.h"
 
 namespace SIML {
@@ -39,10 +40,24 @@ namespace SIML {
 	};
 
 	struct ParseError {
-        ParseError(std::string message, Lexer& lexer) noexcept : m_message(message), m_position(lexer.m_source.m_pointer) {}; 
+        ParseError(std::string message, Lexer& lexer) noexcept : m_message(message), m_lexer(lexer) {}; 
 
         std::string m_message;
-        unsigned int m_position;
+        Lexer& m_lexer;
+
+		std::tuple<unsigned int, unsigned int> to_ln_col() {
+			unsigned int line = 0;
+			unsigned int column = 0;
+
+			for (int i = 0; i < m_lexer.m_source.m_pointer; i++) {
+				column++;
+				if (m_lexer.m_source.m_data[i] == '\n') {
+					line++; column = 0;
+				}
+			}
+
+			return std::make_tuple(line, column);
+		}
     };
 }
 

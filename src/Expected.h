@@ -7,7 +7,7 @@
 #include <cassert>
 
 #define expect(v) ({ \
-    auto&& _tmp = (v); \
+    auto _tmp = (v); \
     if (_tmp.hasError()) return Unexpected(_tmp.error()); \
     std::move(_tmp.value()); \
 })

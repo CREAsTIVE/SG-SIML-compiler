@@ -97,8 +97,6 @@ Expected<Unit, SIML::ParseError> parse_object_element(SIML::Lexer& lexer, SIML::
         if (lexer.peek() == SIML::TokenType::NUMBER) {
             lexer.m_source.m_pointer = cursor;
 
-            
-
             auto val = expect(parse_next_node(lexer));
             obj.positionalProperties.push_back(std::move(val));
             return Unit {};
@@ -124,6 +122,7 @@ Expected<Unit, SIML::ParseError> parse_object_element(SIML::Lexer& lexer, SIML::
     // Parse value
     auto val = expect(parse_next_node(lexer));
     obj.positionalProperties.push_back(std::move(val));
+    return Unit {};
 }
 
 Expected<std::unique_ptr<SIML::NodeObject>, SIML::ParseError> parse_next_object(SIML::Lexer& lexer) noexcept {

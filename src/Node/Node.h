@@ -1,6 +1,8 @@
 #ifndef SIML_NODE_H
 #define SIML_NODE_H
 
+#include "../Lexer/Lexer.h"
+
 #include <string_view>
 #include <memory>
 #include <optional>
@@ -43,6 +45,8 @@ namespace SIML {
 
         std::unordered_map<std::string_view, std::unique_ptr<Node>> namedProperties;
         std::vector<std::unique_ptr<Node>> positionalProperties;
+
+        static std::unique_ptr<NodeObject> parse_as_global_node(Lexer& lexer) noexcept;
     };
 
     struct NodeComponent : Node {

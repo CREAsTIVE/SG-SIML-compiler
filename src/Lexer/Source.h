@@ -1,5 +1,5 @@
-#ifndef SIML_LEXER_H
-#define SIML_LEXER_H
+#ifndef SIML_SOURCE_H
+#define SIML_SOURCE_H
 
 #include <string>
 #include <string_view>

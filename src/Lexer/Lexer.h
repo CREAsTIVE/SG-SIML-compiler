@@ -1,3 +1,6 @@
+#ifndef SIML_LEXER_H
+#define SIML_LEXER_H
+
 #include "./Source.h"
 #include <algorithm>
 #include <string_view>
@@ -32,3 +35,5 @@ namespace SIML {
 		std::string_view get_next_number() noexcept;
 	};
 }
+
+#endif
